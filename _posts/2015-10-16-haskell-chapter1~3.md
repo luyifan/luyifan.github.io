@@ -4,7 +4,7 @@ category: haskell
 tags: [ read , haskell ]
 ---
 {% include JB/setup %}
-#Read Real World Haskell Chapter1-3
+#Real World Haskell Chapter1-3
 
 ###Haskell类型系统
 * 强类型

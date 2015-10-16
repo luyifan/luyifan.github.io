@@ -4,7 +4,7 @@ category: haskell
 tags: [ read , haskell ]
 ---
 {% include JB/setup %}
-#Read Real World Haskell函数式编程
+#Real World Haskell函数式编程
 {% highlight haskell %}
 {% endhighlight %}
 ###中缀函数
