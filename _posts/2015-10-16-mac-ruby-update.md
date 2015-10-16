@@ -1,7 +1,7 @@
 ---
 layout: post 
-category: life 
-tags: [ beginner , life ]
+category: error  
+tags: [ mac os , error , solution ]
 ---
 {% include JB/setup %}
 ##Mac OS Yosemite update ruby
