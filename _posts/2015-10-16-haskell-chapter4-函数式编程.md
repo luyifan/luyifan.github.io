@@ -18,7 +18,6 @@ data a `Pair` b = a `Pair` b
 foo = Pair 1 2
 bar = True `Pair` "quux"
 {% endhighlight %}
-
 ###List
 * 一个列表不会明确地存储它本身的长度。因此length函数的工作方式是遍历整个列表。
 * 只关心一个列表是不是为空时，调用length不是一个好的策略,选择调用null函数

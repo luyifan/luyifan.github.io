@@ -50,6 +50,48 @@ data Customer = Customer {
     , customerAddress :: Address
     } deriving (Show)
 {% endhighlight %}
+
+###newtype
+1. newtype 声明的作用是重命名`现有类型`，并给它一个新身份
+2. newtype 和 type 区别
+* newtype 关键字的存在是为了隐藏类型的本性
+{% highlight haskell %}
+newtype UniqueID = UniqueID Int
+    deriving (Eq)
+type UniqueID2 = Int 
+{% endhighlight %}
+* 编译器会把 UniqueID 当成和 Int 不同的类型,而UniqueID2为Int类型
+3. data和newtype区别  
+* newtype 只能有`一个值构造器`， 并且这个构造器`只能且必须有一个字段`。
+* data 关键字创建的类型在运行时有一个簿记开销， 如记录某个值是用哪个构造器创建的。而 newtype 只有一个构造器，所以不需要这个额外开销。
+* newtype 的构造器只在编译时使用，`运行时甚至不存在`， 用 newtype 定义的类型和用 data 定义的类型在匹配 `undefined` 时会有不同的行为。
+{% highlight haskell %}
+data DataInt = D Int
+    deriving (Eq, Ord, Show)
+newtype NewtypeInt = N Int
+    deriving (Eq, Ord, Show)
+*Main> case (D undefined) of D _ -> 1
+1
+*Main> case undefined of D _ -> 1
+*** Exception: Prelude.undefined
+*Main> case (N undefined) of N _ -> 1
+1
+*Main> case undefined of N _ -> 1
+1   
+{% endhighlight %}
+没有崩溃！由于运行时不存在构造器，匹配 `N _` 实际上就是在匹配通配符 `_`：由于通配符总可以被匹配，所以表达式是不需要被求值的。
+
+###Maybe Either 
+{% highlight haskell %}
+data Maybe a = Nothing
+             | Just a
+               deriving (Eq, Ord, Read, Show)
+
+data Either a b = Left a
+                | Right b
+                  deriving (Eq, Ord, Read, Show)
+{% endhighlight %}
+
  
 ###Haskell模式匹配
 * 模式匹配的过程就像是逆转一个值的构造（construction）过程，因此它有时候也被称为解构（deconstruction）。
