@@ -81,3 +81,52 @@ main =
 * BlockBuffering 接受一个 Maybe 类型的参数： 如果是 Nothing ， 它会使用一个`自定的缓冲区大小`，或者你可以使用一个像 Just 4096 的设定
 4. 查看设定缓冲区模式
 * hGetBuffering和hSetBuffering
+
+###一个不优的本地查找函数
+{% highlight haskell %}
+import RecursiveContents (getRecursiveContents)
+simpleFind :: (FilePath -> Bool) -> FilePath -> IO [FilePath]
+simpleFind p path = do
+    names <- getRecursiveContents path
+    return (filter p names)
+{% endhighlight %}
+*  simpleFind 是`严格`的，因为它包含一系列IO Monad操作执行构成的动作，如果我们有一百万个文件要遍历，我们需要等待很长一段时间才能得到一个包含一百万个名字的巨大的返回值，这对用户体验和资源消耗都是噩梦。getRecursiveContents path得到的IO [[FilePath]]需要concat之后才能filter,所以不能一个文件名处理掉，然后释放。
+
+* <font color="red">可以设计带存取状态功能的迭代器Iterator see d来过滤每个找到的路径或文件<font>
+* 这个带状态的迭代器可以存储很多记录变量，比如计数目录个数之类的
+
+###请求-使用-释放循环<font color="red">bracket<font>
+* 每当 openFile 成功之后我们就必须保证调用 hClose ， Control.Exception 模块提供了 bracket 函数
+{% highlight haskell %}
+ghci> :type bracket
+bracket :: IO a -> (a -> IO b) -> (a -> IO c) -> IO c
+{% endhighlight %}
+* bracket 函数需要三个动作作为参数，第一个动作`需要`一个资源，第二个动作`释放`这个资源，第三个动作在这两个中`执行`，当资源被请求，我们称他为操作动作，当请求动作成功，释放动作随后总是被调用，这保证了这个资源一直能够被释放，对通过的每个请求资源文件的操作，使用和释放动作都是必要的。 
+* 如果一个异常发生在使用过程中， bracket 调用`释放动作`并`抛出异常`，如果使用动作`成功`， bracket 调用`释放动作`，同时返回使用动作返回的`值`。
+{% highlight haskell %}
+-- file: ch09/BetterPredicate.hs
+getFileSize path = handle (\_ -> return Nothing) $
+  bracket (openFile path ReadMode) hClose $ \h -> do
+    size <- hFileSize h
+    return (Just size)
+{% endhighlight %}
+
+###多用提升（lifting）来减少样板代码
+* 在Haskell中，我们更希望函数的`传入参数`和`返回值`都是`函数`，就像`组合子(Combinators)`一样
+*  liftM 函数将一个普通函数， concat ，提升到可在 IO monad 之中使用。换句话讲，liftM 将 forM 的结果值（类型为 [[Info]]）从 IO monad 中取出，把 concat 应用在其上（获得一个 [Info] 类型的返回值，这也是我们所需要的），最后将结果再放进 IO monad 里。下面也是一个例子
+{% highlight haskell %}
+maybeIO :: IO a -> IO (Maybe a)
+maybeIO act = handle ((λ_ -> return Nothing )::IOError -> IO (Maybe a)) ( Just `liftM` act )
+{% endhighlight %}
+
+###定义并使用新算符
+{% highlight haskell %}
+(==?) = equalP
+(&&?) = andP
+(>?) = greaterP
+myTest3 = (liftPath takeExtension ==? ".cpp") &&? (sizeP >? 131072)
+{% endhighlight %}
+括号在定义中是必要的,`操作`如果`没`有`边界`（fixities）`声明`将会被以 `infixl 9` 之类的东西对待，计算从`左到右`，如果跳过这个`括号`，表达式将被解析成具有可怕错误的 (((liftPath takeExtension) ==? ".cpp") &&? sizeP) >? 131072 。
+
+
+
