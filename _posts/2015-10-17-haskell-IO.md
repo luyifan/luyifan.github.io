@@ -126,7 +126,14 @@ maybeIO act = handle ((λ_ -> return Nothing )::IOError -> IO (Maybe a)) ( Just 
 (>?) = greaterP
 myTest3 = (liftPath takeExtension ==? ".cpp") &&? (sizeP >? 131072)
 {% endhighlight %}
-括号在定义中是必要的,`操作`如果`没`有`边界`（fixities）`声明`将会被以 `infixl 9` 之类的东西对待，计算从`左到右`，如果跳过这个`括号`，表达式将被解析成具有可怕错误的 (((liftPath takeExtension) ==? ".cpp") &&? sizeP) >? 131072 。
+括号在定义中是必要的,`操作`如果`没`有`边界声明`（fixity declaration）将会被以 `infixl 9` 之类的东西对待，计算从`左到右`，如果跳过这个`括号`，表达式将被解析成具有可怕错误的 (((liftPath takeExtension) ==? ".cpp") &&? sizeP) >? 131072 。
+
+* 没给 (>>?)和(==?) 定义结合度(fixity declaration)，因此它默认为 infixl 9 （左结合，优先级最高的操作符）。 换言之，a >>? b >>? c 会从左向右求值，就像 (a >>? b) >>? c) 一样。
+* 定义结合度的方法，直接写
+{% highlight haskell %}
+infixr 5 ++
+infixr 9 .
+{% endhighlight %}
 
 
 
