@@ -142,13 +142,6 @@ ghci> m `M.union` M.singleton "foo" 0
 fromList [("foo",1)]
 {% endhighlight %}
 
-{% highlight haskell %}
-
-{% endhighlight %}
-
-{% highlight haskell %}
-
-{% endhighlight %}
 
 
  

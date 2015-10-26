@@ -206,8 +206,25 @@ Figures from [HTML5 Boilerplate](http://j.mp/rP0wmY)
 
 No styleguide reference.
 */
-figure {
+/*figure {
   margin: 0;
+}*/
+figure {
+	   background-color: #f8f8f8;
+	   padding: 5px;
+	   font-size: .875em;
+	   display: table;
+}
+
+figure img {
+	display: block;
+	width: 100%;
+}
+figcaption {
+	display: table-caption;
+	caption-side: bottom;
+	background: #f8f8f8;
+	padding: 0 10px 10px;
 }
 /*
 Forms from [HTML5 Boilerplate](http://j.mp/rP0wmY)
