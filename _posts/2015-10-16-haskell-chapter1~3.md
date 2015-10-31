@@ -149,7 +149,7 @@ lend3 amount balance
           newBalance = balance - amount
 {% endhighlight %}
 
-###<font color="red">容易忽略的细节<font>
+###<font color="red">容易忽略的细节</font>
 1. 函数应用的优先级比操作符要高
 {% highlight haskell %}
 Prelude> (compare 2 3) == LT
